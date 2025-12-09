@@ -2,20 +2,13 @@
   "version": 2,
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "/backend/server.js"
-    },
-    {
-      "source": "/",
-      "destination": "/frontend/index.html"
-    },
-    {
-      "source": "/assets/(.*)",
-      "destination": "/frontend/assets/$1"
-    },
-    {
       "source": "/(.*)",
-      "destination": "/frontend/$1"
+      "destination": "/backend/server.js"
     }
-  ]
+  ],
+  "functions": {
+    "backend/server.js": {
+      "includeFiles": "frontend/**"
+    }
+  }
 }

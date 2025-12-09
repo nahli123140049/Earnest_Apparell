@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path'); 
 const Product = require('./models/Product');
 
 const app = express();
@@ -14,12 +15,23 @@ const MONGO_URI = 'mongodb+srv://nahli123140049_db_user:admin123@cluster0.mwssam
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
+// -------------------------------------------------------
+// 1. SERVE FRONTEND (WAJIB DI PALING ATAS)
+// -------------------------------------------------------
+// Melayani file statis (CSS, JS, Gambar) dari folder frontend
+app.use(express.static(path.join(__dirname, '../frontend')));
+
+// Melayani folder assets secara spesifik (jaga-jaga)
+app.use('/assets', express.static(path.join(__dirname, '../frontend/assets')));
+
 // Cek Koneksi Database
 mongoose.connect(MONGO_URI)
     .then(() => console.log('   ✅ MongoDB Connected Successfully'))
     .catch(err => console.error('   ❌ MongoDB Connection Error:', err));
 
-// --- ROUTES API ---
+// -------------------------------------------------------
+// 2. API ROUTES
+// -------------------------------------------------------
 
 app.get('/api/products', async (req, res) => {
     try {
@@ -48,10 +60,13 @@ app.delete('/api/products/:id', async (req, res) => {
     }
 });
 
-// Route Default Backend (Penyelamat)
-// Jika Vercel gagal load frontend dan malah masuk sini, setidaknya user tau server nyala.
-app.get('/', (req, res) => {
-    res.send('Backend API is Running. (Jika Anda melihat ini, berarti Vercel belum me-load frontend/index.html)');
+// -------------------------------------------------------
+// 3. CATCH-ALL ROUTE (PENYELAMAT)
+// -------------------------------------------------------
+// Jika route API tidak kena, dan file statis tidak ada,
+// kirimkan index.html (Halaman Utama)
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
 // Start Server (Localhost Only)
