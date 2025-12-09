@@ -1,8 +1,12 @@
 const WA_PHONE = "6281234567890"; // REPLACE WITH EARNEST APPAREL WA NUMBER
 
 // --- CONFIGURATION ---
-// Pastikan URL ini mengarah ke port backend (5000)
-const API_URL = 'http://localhost:5000/api/products'; 
+// Gunakan logika ini:
+// Jika dibuka di localhost, pakai http://localhost:5000
+// Jika dibuka di Vercel, pakai relative path /api/products
+const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:5000/api/products'
+    : '/api/products'; 
 
 // --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
