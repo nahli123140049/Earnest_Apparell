@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path'); 
 const Product = require('./models/Product');
 
 const app = express();
@@ -13,6 +14,12 @@ const MONGO_URI = 'mongodb+srv://nahli123140049_db_user:admin123@cluster0.mwssam
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
+
+// -------------------------------------------------------
+// FIX: SERVE FRONTEND VIA EXPRESS (JAGA-JAGA)
+// -------------------------------------------------------
+// Ini memastikan jika Vercel menjalankan server.js, website tetap muncul.
+app.use(express.static(path.join(__dirname, '../frontend')));
 
 // Cek Koneksi Database
 mongoose.connect(MONGO_URI)
@@ -51,9 +58,12 @@ app.delete('/api/products/:id', async (req, res) => {
     }
 });
 
-// Route Default untuk cek status API
-app.get('/', (req, res) => {
-    res.send('Backend API is Running');
+// -------------------------------------------------------
+// FIX: CATCH-ALL ROUTE (PENYELAMAT)
+// -------------------------------------------------------
+// Jika route di atas tidak ada yang cocok, kirimkan index.html
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
 // Start Server (Hanya jalankan listen jika di Localhost, bukan di Vercel)
