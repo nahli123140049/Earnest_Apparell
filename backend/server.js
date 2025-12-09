@@ -7,22 +7,21 @@ const Product = require('./models/Product');
 const app = express();
 const PORT = 5000;
 
-// ---------------------------------------------------------------------------
-// PENTING: GANTI STRING DI BAWAH INI DENGAN YANG ASLI DARI DASHBOARD ATLAS
-// ---------------------------------------------------------------------------
 const MONGO_URI = 'mongodb+srv://nahli123140049_db_user:admin123@cluster0.mwssamz.mongodb.net/?appName=Cluster0'; 
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
 // -------------------------------------------------------
-// 1. SERVE FRONTEND (WAJIB DI PALING ATAS)
+// PATH RESOLUTION (DEBUGGING MODE)
 // -------------------------------------------------------
-// Melayani file statis (CSS, JS, Gambar) dari folder frontend
-app.use(express.static(path.join(__dirname, '../frontend')));
+// Kita gunakan process.cwd() untuk mencari folder frontend di root project
+// Ini lebih aman di Vercel daripada __dirname
+const frontendPath = path.join(process.cwd(), 'frontend');
 
-// Melayani folder assets secara spesifik (jaga-jaga)
-app.use('/assets', express.static(path.join(__dirname, '../frontend/assets')));
+// Serve Static Files
+app.use(express.static(frontendPath));
+app.use('/assets', express.static(path.join(frontendPath, 'assets')));
 
 // Cek Koneksi Database
 mongoose.connect(MONGO_URI)
@@ -61,12 +60,29 @@ app.delete('/api/products/:id', async (req, res) => {
 });
 
 // -------------------------------------------------------
-// 3. CATCH-ALL ROUTE (PENYELAMAT)
+// 3. CATCH-ALL ROUTE (DENGAN ERROR HANDLING)
 // -------------------------------------------------------
-// Jika route API tidak kena, dan file statis tidak ada,
-// kirimkan index.html (Halaman Utama)
+// Jika route API tidak kena, kita coba kirim index.html
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/index.html'));
+    const indexPath = path.join(frontendPath, 'index.html');
+    
+    res.sendFile(indexPath, (err) => {
+        if (err) {
+            // Jika error, tampilkan pesan debug di browser agar kita tau salahnya dimana
+            res.status(500).send(`
+                <div style="font-family: monospace; padding: 20px;">
+                    <h1>Server Error: Gagal Memuat Frontend</h1>
+                    <p><strong>Error Message:</strong> ${err.message}</p>
+                    <hr>
+                    <h3>Debug Info:</h3>
+                    <p><strong>Mencari file di:</strong> ${indexPath}</p>
+                    <p><strong>Folder Frontend terdeteksi di:</strong> ${frontendPath}</p>
+                    <p><strong>Current Directory (CWD):</strong> ${process.cwd()}</p>
+                    <p><strong>Dirname:</strong> ${__dirname}</p>
+                </div>
+            `);
+        }
+    });
 });
 
 // Start Server (Localhost Only)
