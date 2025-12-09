@@ -1,7 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const path = require('path'); 
 const Product = require('./models/Product');
 
 const app = express();
@@ -15,22 +14,13 @@ const MONGO_URI = 'mongodb+srv://nahli123140049_db_user:admin123@cluster0.mwssam
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
-// -------------------------------------------------------
-// FIX: SERVE FRONTEND VIA EXPRESS (JAGA-JAGA)
-// -------------------------------------------------------
-// Ini memastikan jika Vercel menjalankan server.js, website tetap muncul.
-app.use(express.static(path.join(__dirname, '../frontend')));
-
 // Cek Koneksi Database
 mongoose.connect(MONGO_URI)
-    .then(() => {
-        console.log('   ✅ MongoDB Connected Successfully');
-    })
-    .catch(err => {
-        console.error('   ❌ MongoDB Connection Error:', err);
-    });
+    .then(() => console.log('   ✅ MongoDB Connected Successfully'))
+    .catch(err => console.error('   ❌ MongoDB Connection Error:', err));
 
-// Routes API
+// --- ROUTES API ---
+
 app.get('/api/products', async (req, res) => {
     try {
         const products = await Product.find().sort({ createdAt: -1 });
@@ -58,23 +48,19 @@ app.delete('/api/products/:id', async (req, res) => {
     }
 });
 
-// -------------------------------------------------------
-// FIX: CATCH-ALL ROUTE (PENYELAMAT)
-// -------------------------------------------------------
-// Jika route di atas tidak ada yang cocok, kirimkan index.html
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/index.html'));
+// Route Default Backend (Hanya muncul jika Vercel salah routing ke backend)
+app.get('/', (req, res) => {
+    res.json({ 
+        status: "Backend Running", 
+        message: "Ini adalah API Server. Jika Anda melihat ini di halaman utama, berarti routing frontend belum benar." 
+    });
 });
 
-// Start Server (Hanya jalankan listen jika di Localhost, bukan di Vercel)
+// Start Server (Localhost Only)
 if (require.main === module) {
     app.listen(PORT, () => {
-        console.log('\n==================================================');
-        console.log(`🚀 SERVER SUDAH JALAN!`);
-        console.log(`🔗 Link API: http://localhost:${PORT}`);
-        console.log('==================================================\n');
+        console.log(`🚀 Server running on http://localhost:${PORT}`);
     });
 }
 
-// Export app untuk Vercel
 module.exports = app;
