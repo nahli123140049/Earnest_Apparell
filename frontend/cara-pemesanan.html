@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cara Pemesanan - Earnest Apparel</title>
+    <meta name="description" content="Panduan cara memesan di Earnest Apparel dan FAQ.">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .step-list { counter-reset: step; list-style: none; padding: 0; }
+        .step-list li { position: relative; padding-left: 50px; margin-bottom: 20px; }
+        .step-list li::before {
+            counter-increment: step;
+            content: counter(step);
+            position: absolute; left: 0; top: 0;
+            width: 35px; height: 35px;
+            background: var(--primary-color); color: #fff;
+            border-radius: 50%; text-align: center; line-height: 35px; font-weight: bold;
+        }
+        .step-title { font-weight: bold; font-size: 1.1rem; display: block; margin-bottom: 5px; }
+        
+        details { background: #fff; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor: pointer; }
+        summary { font-weight: 600; color: var(--primary-color); outline: none; }
+        details[open] summary { margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container navbar">
+            <a href="index.html" class="logo">Earnest Apparel</a>
+            <div class="menu-toggle"><i class="fas fa-bars"></i></div>
+            <nav class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="about.html">Tentang Kami</a>
+                <a href="produk.html">produk</a>
+                <a href="cara-pemesanan.html">Cara Pesan</a>
+                <a href="kontak.html">Kontak</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 50px;">
+            
+            <!-- Steps -->
+            <div>
+                <h2 class="section-title" style="text-align: left;">Alur Pemesanan</h2>
+                <ol class="step-list">
+                    <li>
+                        <span class="step-title">Konsultasi Desain & Spesifikasi</span>
+                        Hubungi kami via WhatsApp. Kirimkan desain (jika ada) atau referensi, serta jumlah dan jenis bahan yang diinginkan.
+                    </li>
+                    <li>
+                        <span class="step-title">Penawaran Harga</span>
+                        Kami akan menghitung estimasi biaya dan waktu pengerjaan.
+                    </li>
+                    <li>
+                        <span class="step-title">Pembayaran DP (Down Payment)</span>
+                        Setelah deal, lakukan pembayaran DP minimal 50% untuk memulai proses produksi/desain fix.
+                    </li>
+                    <li>
+                        <span class="step-title">Approval Desain (Mockup)</span>
+                        Kami akan mengirimkan mockup digital untuk disetujui sebelum naik produksi massal.
+                    </li>
+                    <li>
+                        <span class="step-title">Produksi</span>
+                        Proses produksi berjalan sesuai estimasi waktu yang disepakati.
+                    </li>
+                    <li>
+                        <span class="step-title">Pelunasan & Pengiriman</span>
+                        Barang selesai, lakukan pelunasan, dan barang siap diambil atau dikirim.
+                    </li>
+                </ol>
+            </div>
+
+            <!-- FAQ -->
+            <div>
+                <h2 class="section-title" style="text-align: left;">FAQ (Tanya Jawab)</h2>
+                
+                <details>
+                    <summary>Berapa minimal order pemesanan?</summary>
+                    <p>Untuk PDH/Kemeja dan Jaket minimal 12 pcs. Untuk Jersey minimal 12 pcs. Satuan hanya untuk sample (syarat ketentuan berlaku).</p>
+                </details>
+
+                <details>
+                    <summary>Berapa lama waktu pengerjaan?</summary>
+                    <p>Estimasi standar: Jersey (7-10 hari), PDH (14-21 hari), Jaket (14-21 hari). Waktu bisa berubah tergantung antrian produksi.</p>
+                </details>
+
+                <details>
+                    <summary>Apakah bisa bantu desainkan?</summary>
+                    <p>Ya, kami menyediakan jasa desain gratis untuk pemesanan dalam jumlah tertentu. Revisi desain maksimal 3x.</p>
+                </details>
+
+                <details>
+                    <summary>Lokasi workshop dimana?</summary>
+                    <p>Kami berlokasi di Bandar Lampung. Alamat lengkap bisa dilihat di halaman Kontak.</p>
+                </details>
+
+                <details>
+                    <summary>Apakah bisa kirim ke luar kota?</summary>
+                    <p>Bisa. Kami biasa menggunakan ekspedisi JNE, J&T, Indah Cargo, atau Travel untuk pengiriman ke seluruh Indonesia.</p>
+                </details>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h3>Earnest Apparel</h3>
+                    <p>Partner terbaik untuk kebutuhan konveksi dan merchandise anda.</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="produk.html">Produk</a></li>
+                        <li><a href="produk.html">produk</a></li>
+                        <li><a href="cara-pemesanan.html">Cara Pesan</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Kontak</h3>
+                    <ul>
+                        <li><i class="fab fa-whatsapp"></i> +62 812-3456-7890</li>
+                        <li><i class="fab fa-instagram"></i> @earnest.apparel</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">&copy; 2023 Earnest Apparel. All rights reserved.</div>
+        </div>
+    </footer>
+
+    <a href="#" class="floating-wa" aria-label="Chat on WhatsApp"><i class="fab fa-whatsapp"></i></a>
+    <script src="assets/js/main.js"></script>
+</body>
+</html>

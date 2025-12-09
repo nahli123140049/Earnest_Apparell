@@ -1,0 +1,18 @@
+[
+  {
+    "id": 101,
+    "title": "Kemeja PDH / PDL",
+    "category": "PDH",
+    "description": "Cocok untuk organisasi, himpunan, atau seragam kantor. Bahan American Drill.",
+    "image": "https://via.placeholder.com/400x300?text=PDH+Kemeja",
+    "details": { "material": "American Drill", "color": "Custom", "size": "S - 5XL" }
+  },
+  {
+    "id": 102,
+    "title": "Jersey Full Printing",
+    "category": "Jersey",
+    "description": "Untuk tim futsal, e-sport, voli. Bahan Dryfit Milano anti luntur.",
+    "image": "https://via.placeholder.com/400x300?text=Jersey+Full+Print",
+    "details": { "material": "Dryfit Milano", "color": "Full Color", "size": "XS - 4XL" }
+  }
+]

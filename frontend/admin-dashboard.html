@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - Earnest Apparel</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <header>
+        <div class="container navbar">
+            <a href="#" class="logo">Admin Panel</a>
+            <button class="btn-outline" onclick="logout()">Logout</button>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="dashboard-header">
+            <h1>Manajemen Produk</h1>
+            <a href="produk.html" target="_blank" class="btn-outline">Lihat Halaman Produk</a>
+        </div>
+
+        <div class="grid" style="grid-template-columns: 1fr 2fr; gap: 40px; align-items: start;">
+            
+            <!-- Form Input -->
+            <div class="card" style="padding: 20px;">
+                <h3 style="margin-bottom: 20px; color: var(--primary-color);">Tambah Produk Baru</h3>
+                <form id="add-product-form">
+                    <div class="form-group">
+                        <label>Nama Produk</label>
+                        <input type="text" id="p_title" required placeholder="Contoh: Jersey Gaming">
+                    </div>
+                    <div class="form-group">
+                        <label>Kategori</label>
+                        <select id="p_category" required>
+                            <option value="PDH">PDH</option>
+                            <option value="Jersey">Jersey</option>
+                            <option value="Polo">Polo</option>
+                            <option value="Jaket">Jaket</option>
+                            <option value="Lanyard">Lanyard</option>
+                            <option value="Merchandise">Merchandise</option>
+                        </select>
+                    </div>
+                    
+                    <!-- New Detail Fields -->
+                    <div class="form-group">
+                        <label>Bahan (Material)</label>
+                        <input type="text" id="p_material" placeholder="Contoh: American Drill, Dryfit">
+                    </div>
+                    <div class="form-group">
+                        <label>Pilihan Warna</label>
+                        <input type="text" id="p_color" placeholder="Contoh: Navy, Hitam, Custom">
+                    </div>
+                    <div class="form-group">
+                        <label>Ukuran Tersedia</label>
+                        <input type="text" id="p_size" placeholder="Contoh: S, M, L, XL, XXL">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Deskripsi Singkat</label>
+                        <textarea id="p_desc" rows="3" required placeholder="Deskripsi bahan dan kegunaan..."></textarea>
+                    </div>
+                    
+                    <!-- Changed from URL input to File input -->
+                    <div class="form-group">
+                        <label>Gambar Produk</label>
+                        <input type="file" id="p_image_file" accept="image/*">
+                        <small style="color: #666;">Upload gambar dari komputer (Disarankan < 500KB agar penyimpanan tidak penuh). Jika kosong akan pakai placeholder.</small>
+                    </div>
+
+                    <button type="submit" class="btn" style="width: 100%;">Simpan Produk</button>
+                </form>
+            </div>
+
+            <!-- Product List Table -->
+            <div>
+                <h3 style="margin-bottom: 20px;">Daftar Produk Aktif</h3>
+                <table class="admin-table" id="admin-product-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Gambar</th>
+                            <th>Nama</th>
+                            <th>Kategori</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="assets/js/main.js"></script>
+</body>
+</html>
