@@ -48,12 +48,10 @@ app.delete('/api/products/:id', async (req, res) => {
     }
 });
 
-// Route Default Backend (Hanya muncul jika Vercel salah routing ke backend)
+// Route Default Backend (Penyelamat)
+// Jika Vercel gagal load frontend dan malah masuk sini, setidaknya user tau server nyala.
 app.get('/', (req, res) => {
-    res.json({ 
-        status: "Backend Running", 
-        message: "Ini adalah API Server. Jika Anda melihat ini di halaman utama, berarti routing frontend belum benar." 
-    });
+    res.send('Backend API is Running. (Jika Anda melihat ini, berarti Vercel belum me-load frontend/index.html)');
 });
 
 // Start Server (Localhost Only)
