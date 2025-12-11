@@ -2,7 +2,7 @@ const WA_PHONE = "6281234567890";
 
 // --- CONFIGURATION ---
 // Fix API_URL: Pastikan mengarah ke port 5000 jika di localhost
-const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:')
     ? 'http://localhost:5000/api' 
     : '/api'; 
 
@@ -72,7 +72,9 @@ function initFloatingWA() {
 
 async function getProducts() {
     try {
-        const response = await fetch(API_URL);
+        // PERBAIKAN: Tambahkan '/products' karena API_URL sekarang adalah base path
+        // Tambahkan timestamp agar data selalu fresh (tidak cache)
+        const response = await fetch(`${API_URL}/products?t=${new Date().getTime()}`);
         if (!response.ok) throw new Error('Gagal mengambil data dari server');
         return await response.json();
     } catch (error) {
@@ -83,6 +85,8 @@ async function getProducts() {
 
 async function renderProductGrid() {
     const grid = document.getElementById('product-grid');
+    if (!grid) return;
+
     grid.innerHTML = '<p style="text-align:center; width:100%;">Loading products...</p>';
     
     try {
@@ -97,7 +101,6 @@ async function renderProductGrid() {
         products.forEach(item => {
             const card = document.createElement('div');
             card.className = 'card';
-            // Perhatikan penggunaan item.id (MongoDB ID)
             card.innerHTML = `
                 <img src="${item.image}" alt="${item.title}" class="card-img">
                 <div class="card-body">
@@ -124,7 +127,7 @@ window.openProductModal = async function(productId) {
     const modal = document.getElementById('product-modal');
     const content = modal.querySelector('.modal-content');
     
-    const details = item.details || { material: '-', color: '-', size: '-' };
+    const details = item.details || { material: '-', color: '-', size: '-', embroidery: '-' };
 
     content.innerHTML = `
         <button class="modal-close" onclick="closeProductModal()" aria-label="Close modal">&times;</button>
@@ -141,6 +144,7 @@ window.openProductModal = async function(productId) {
                 <p><strong>Bahan:</strong> ${details.material}</p>
                 <p><strong>Warna:</strong> ${details.color}</p>
                 <p><strong>Ukuran:</strong> ${details.size}</p>
+                <p><strong>Jenis Bordir/Sablon:</strong> ${details.embroidery || '-'}</p>
             </div>
 
             <button class="btn" style="width: 100%;" onclick="openWhatsAppForInquiry({title: '${item.title}', category: '${item.category}'})">
