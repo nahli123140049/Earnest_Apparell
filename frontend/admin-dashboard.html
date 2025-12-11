@@ -96,6 +96,46 @@
         </div>
     </main>
 
+    <!-- MODAL EDIT PRODUK -->
+    <div id="edit-product-modal" class="modal" aria-hidden="true">
+        <div class="modal-content" style="max-width: 500px; display: block; padding: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3>Edit Produk</h3>
+                <button onclick="closeEditModal()" style="background:none; border:none; font-size: 1.5rem; cursor:pointer;">&times;</button>
+            </div>
+            <form id="edit-product-form">
+                <input type="hidden" id="edit_id">
+                <input type="hidden" id="edit_current_image">
+                
+                <div class="form-group"><label>Nama Produk</label><input type="text" id="edit_title" required></div>
+                <div class="form-group">
+                    <label>Kategori</label>
+                    <select id="edit_category" required>
+                        <option value="PDH">PDH</option>
+                        <option value="Jersey">Jersey</option>
+                        <option value="Polo">Polo</option>
+                        <option value="Jaket">Jaket</option>
+                        <option value="Lanyard">Lanyard</option>
+                        <option value="Merchandise">Merchandise</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Bahan</label><input type="text" id="edit_material"></div>
+                <div class="form-group"><label>Warna</label><input type="text" id="edit_color"></div>
+                <div class="form-group"><label>Ukuran</label><input type="text" id="edit_size"></div>
+                
+                <!-- Input Baru: Jenis Bordir (Tambahkan ini) -->
+                <div class="form-group"><label>Jenis Bordir/Sablon</label><input type="text" id="edit_embroidery"></div>
+                
+                <div class="form-group"><label>Deskripsi</label><textarea id="edit_desc" rows="3"></textarea></div>
+                <div class="form-group">
+                    <label>Ganti Gambar (Opsional)</label>
+                    <input type="file" id="edit_image_file" accept="image/*">
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">Update Produk</button>
+            </form>
+        </div>
+    </div>
+
     <script src="assets/js/main.js"></script>
 </body>
 </html>

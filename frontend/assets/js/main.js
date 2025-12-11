@@ -1,12 +1,13 @@
-const WA_PHONE = "6281234567890"; // REPLACE WITH EARNEST APPAREL WA NUMBER
+const WA_PHONE = "6281234567890"; 
 
 // --- CONFIGURATION ---
-// Gunakan logika ini:
-// Jika dibuka di localhost, pakai http://localhost:5000
-// Jika dibuka di Vercel, pakai relative path /api/products
-const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:5000/api/products'
-    : '/api/products'; 
+// Fix API_URL: Pastikan mengarah ke port 5000 jika di localhost
+const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'http://localhost:5000/api' 
+    : '/api'; 
+
+// Variabel Global untuk menyimpan data produk
+window.currentProducts = [];
 
 // --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -23,6 +24,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('admin-product-table')) {
         renderAdminProductTable();
         initAddProductForm();
+        initEditProductForm(); // Pastikan fungsi ini dipanggil
+        initCMSForms();
     }
 
     // Login Page Logic
@@ -163,89 +166,210 @@ window.openWhatsAppForInquiry = function(item) {
 
 // --- ADMIN LOGIC ---
 
+// --- ADMIN: RENDER TABLE ---
 async function renderAdminProductTable() {
     const tbody = document.querySelector('#admin-product-table tbody');
     if(!tbody) return;
     
     tbody.innerHTML = '<tr><td colspan="5">Loading...</td></tr>';
     
-    const products = await getProducts();
-    tbody.innerHTML = '';
-    
-    products.forEach(item => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${item.id.substring(0, 8)}...</td>
-            <td><img src="${item.image}" style="width:50px; height:50px; object-fit:cover;"></td>
-            <td>${item.title}</td>
-            <td>${item.category}</td>
-            <td>
-                <button class="btn-danger" onclick="deleteProduct('${item.id}')">Hapus</button>
-            </td>
-        `;
-        tbody.appendChild(tr);
-    });
+    try {
+        const response = await fetch(`${API_URL}/products`);
+        if (!response.ok) {
+            throw new Error(`Server Error: ${response.status} ${response.statusText}`);
+        }
+        
+        window.currentProducts = await response.json(); 
+        tbody.innerHTML = '';
+        
+        if (window.currentProducts.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada produk.</td></tr>';
+            return;
+        }
+
+        window.currentProducts.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><img src="${item.image}" style="width:50px; height:50px; object-fit:cover;"></td>
+                <td>${item.title}</td>
+                <td>${item.category}</td>
+                <td>
+                    <button class="btn-outline" style="padding:5px 10px; font-size:0.8rem; margin-right:5px; cursor:pointer;" onclick="openEditModal('${item.id}')">Edit</button>
+                    <button class="btn-danger" style="padding:5px 10px; font-size:0.8rem; cursor:pointer;" onclick="deleteProduct('${item.id}')">Hapus</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch (e) { 
+        console.error("Gagal memuat data:", e); 
+        tbody.innerHTML = `<tr><td colspan="5" style="color:red; text-align:center;">Gagal memuat data: ${e.message}<br>Pastikan Backend berjalan (npm start).</td></tr>`;
+    }
 }
 
-function initAddProductForm() {
-    const form = document.getElementById('add-product-form');
+// --- ADMIN: EDIT PRODUCT LOGIC ---
+window.openEditModal = function(id) {
+    const item = window.currentProducts.find(p => p.id === id);
+    if (!item) {
+        alert("Data produk tidak ditemukan di memori browser. Coba refresh.");
+        return;
+    }
+
+    const details = item.details || {};
+    
+    document.getElementById('edit_id').value = item.id;
+    document.getElementById('edit_title').value = item.title;
+    document.getElementById('edit_category').value = item.category;
+    document.getElementById('edit_material').value = details.material || '';
+    document.getElementById('edit_color').value = details.color || '';
+    document.getElementById('edit_size').value = details.size || '';
+    
+    // Handle field embroidery jika ada
+    const editEmbroidery = document.getElementById('edit_embroidery');
+    if(editEmbroidery) editEmbroidery.value = details.embroidery || '';
+
+    document.getElementById('edit_desc').value = item.description;
+    document.getElementById('edit_current_image').value = item.image;
+    document.getElementById('edit_image_file').value = '';
+
+    document.getElementById('edit-product-modal').classList.add('active');
+};
+
+window.closeEditModal = function() {
+    document.getElementById('edit-product-modal').classList.remove('active');
+};
+
+function initEditProductForm() {
+    const form = document.getElementById('edit-product-form');
     if(!form) return;
 
-    form.addEventListener('submit', async (e) => {
+    const newForm = form.cloneNode(true);
+    form.parentNode.replaceChild(newForm, form);
+
+    newForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        const title = document.getElementById('p_title').value;
-        const category = document.getElementById('p_category').value;
-        const desc = document.getElementById('p_desc').value;
-        const material = document.getElementById('p_material').value || "-";
-        const color = document.getElementById('p_color').value || "-";
-        const size = document.getElementById('p_size').value || "-";
-        const fileInput = document.getElementById('p_image_file');
-        const file = fileInput.files[0];
+        const btn = newForm.querySelector('button[type="submit"]');
+        const originalText = btn.innerText;
+        btn.innerText = "Menyimpan...";
+        btn.disabled = true;
 
-        const sendData = async (imgUrl) => {
-            const newProduct = {
-                title: title,
-                category: category,
-                description: desc,
-                image: imgUrl,
-                details: { material, color, size }
-            };
+        const id = document.getElementById('edit_id').value;
+        const fileInput = document.getElementById('edit_image_file');
+        let imgUrl = document.getElementById('edit_current_image').value;
 
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(newProduct)
-                });
+        if (fileInput.files[0]) {
+            try { 
+                imgUrl = await compressImage(fileInput.files[0], 800, 0.7); 
+            } catch (err) { 
+                alert("Gagal proses gambar."); 
+                btn.innerText = originalText;
+                btn.disabled = false;
+                return; 
+            }
+        }
 
-                if (response.ok) {
-                    form.reset();
-                    renderAdminProductTable();
-                    alert('Produk berhasil disimpan ke Database!');
-                } else {
-                    alert('Gagal menyimpan ke server.');
-                }
-            } catch (error) {
-                console.error(error);
-                alert('Terjadi kesalahan koneksi ke Backend.');
+        const editEmbroidery = document.getElementById('edit_embroidery');
+        const embroideryVal = editEmbroidery ? editEmbroidery.value : "-";
+
+        const updatedData = {
+            title: document.getElementById('edit_title').value,
+            category: document.getElementById('edit_category').value,
+            description: document.getElementById('edit_desc').value,
+            image: imgUrl,
+            details: {
+                material: document.getElementById('edit_material').value,
+                color: document.getElementById('edit_color').value,
+                size: document.getElementById('edit_size').value,
+                embroidery: embroideryVal
             }
         };
 
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(event) { sendData(event.target.result); };
-            reader.readAsDataURL(file);
-        } else {
-            sendData("https://via.placeholder.com/400x300?text=No+Image");
+        try {
+            const res = await fetch(`${API_URL}/products/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedData)
+            });
+            if (res.ok) {
+                alert('Produk berhasil diupdate!');
+                closeEditModal();
+                renderAdminProductTable();
+            } else {
+                alert('Gagal update produk.');
+            }
+        } catch (e) { 
+            console.error(e);
+            alert('Error koneksi.'); 
+        } finally {
+            btn.innerText = originalText;
+            btn.disabled = false;
         }
     });
+}
+
+async function initCMSForms() {
+    // Hanya untuk halaman admin-dashboard.html
+    if (window.location.pathname.split('/').pop() !== 'admin-dashboard.html') return;
+
+    // --- ADD PRODUCT FORM ---
+    const addForm = document.getElementById('add-product-form');
+    if(addForm) {
+        addForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const title = document.getElementById('p_title').value;
+            const category = document.getElementById('p_category').value;
+            const desc = document.getElementById('p_desc').value;
+            const material = document.getElementById('p_material').value || "-";
+            const color = document.getElementById('p_color').value || "-";
+            const size = document.getElementById('p_size').value || "-";
+            const fileInput = document.getElementById('p_image_file');
+            const file = fileInput.files[0];
+
+            const sendData = async (imgUrl) => {
+                const newProduct = {
+                    title: title,
+                    category: category,
+                    description: desc,
+                    image: imgUrl,
+                    details: { material, color, size }
+                };
+
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(newProduct)
+                    });
+
+                    if (response.ok) {
+                        addForm.reset();
+                        renderAdminProductTable();
+                        alert('Produk berhasil disimpan ke Database!');
+                    } else {
+                        alert('Gagal menyimpan ke server.');
+                    }
+                } catch (error) {
+                    console.error(error);
+                    alert('Terjadi kesalahan koneksi ke Backend.');
+                }
+            };
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) { sendData(event.target.result); };
+                reader.readAsDataURL(file);
+            } else {
+                sendData("https://via.placeholder.com/400x300?text=No+Image");
+            }
+        });
+    }
 }
 
 window.deleteProduct = async function(id) {
     if(confirm('Yakin ingin menghapus produk ini?')) {
         try {
-            const response = await fetch(`${API_URL}/${id}`, {
+            const response = await fetch(`${API_URL}/products/${id}`, {
                 method: 'DELETE'
             });
             if (response.ok) {
@@ -257,6 +381,14 @@ window.deleteProduct = async function(id) {
     }
 };
 
+// --- AUTH LOGIC ---
+window.logout = function() {
+    if (confirm('Apakah Anda yakin ingin keluar?')) {
+        // Redirect ke halaman login
+        window.location.href = 'login.html';
+    }
+};
+
 function initLoginForm() {
     const form = document.getElementById('login-form');
     if(form) {
@@ -265,6 +397,8 @@ function initLoginForm() {
             const u = document.getElementById('username').value;
             const p = document.getElementById('password').value;
             if (u === 'admin' && p === 'admin123') {
+                // Opsional: Simpan status login jika ingin proteksi halaman
+                // localStorage.setItem('isLoggedIn', 'true');
                 window.location.href = 'admin-dashboard.html';
             } else {
                 alert('Login Gagal');
