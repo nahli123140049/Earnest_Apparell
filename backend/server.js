@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path'); 
 const Product = require('./models/Product');
+const PageContent = require('./models/PageContent');
 
 const app = express();
 const PORT = 5000;
@@ -13,11 +14,11 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
 // -------------------------------------------------------
-// PATH RESOLUTION (DEBUGGING MODE)
+// FIX PATH RESOLUTION (SOLUSI ERROR)
 // -------------------------------------------------------
-// Kita gunakan process.cwd() untuk mencari folder frontend di root project
-// Ini lebih aman di Vercel daripada __dirname
-const frontendPath = path.join(process.cwd(), 'frontend');
+// Menggunakan __dirname dan naik satu level (..) adalah cara paling aman untuk Localhost
+// Ini akan menghasilkan path: D:\SEM 5 CHUY\SI\frontend
+const frontendPath = path.join(__dirname, '../frontend');
 
 // Serve Static Files
 app.use(express.static(frontendPath));
@@ -28,9 +29,7 @@ mongoose.connect(MONGO_URI)
     .then(() => console.log('   ✅ MongoDB Connected Successfully'))
     .catch(err => console.error('   ❌ MongoDB Connection Error:', err));
 
-// -------------------------------------------------------
-// 2. API ROUTES
-// -------------------------------------------------------
+// --- ROUTES API PRODUK ---
 
 app.get('/api/products', async (req, res) => {
     try {
@@ -50,6 +49,20 @@ app.post('/api/products', async (req, res) => {
     }
 });
 
+// UPDATE PRODUCT (PUT)
+app.put('/api/products/:id', async (req, res) => {
+    try {
+        const updatedProduct = await Product.findByIdAndUpdate(
+            req.params.id, 
+            req.body, 
+            { new: true }
+        );
+        res.json(updatedProduct);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+});
+
 app.delete('/api/products/:id', async (req, res) => {
     try {
         await Product.findByIdAndDelete(req.params.id);
@@ -59,33 +72,46 @@ app.delete('/api/products/:id', async (req, res) => {
     }
 });
 
-// -------------------------------------------------------
-// 3. CATCH-ALL ROUTE (DENGAN ERROR HANDLING)
-// -------------------------------------------------------
-// Jika route API tidak kena, kita coba kirim index.html
+// --- ROUTES API KONTEN HALAMAN (CMS) ---
+
+app.get('/api/content/:page', async (req, res) => {
+    try {
+        const data = await PageContent.findOne({ page: req.params.page });
+        res.json(data ? data.content : {});
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+app.post('/api/content/:page', async (req, res) => {
+    try {
+        const updatedContent = await PageContent.findOneAndUpdate(
+            { page: req.params.page },
+            { content: req.body },
+            { new: true, upsert: true }
+        );
+        res.json(updatedContent);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+});
+
+// --- CATCH-ALL ROUTE ---
 app.get('*', (req, res) => {
     const indexPath = path.join(frontendPath, 'index.html');
-    
     res.sendFile(indexPath, (err) => {
         if (err) {
-            // Jika error, tampilkan pesan debug di browser agar kita tau salahnya dimana
+            // Tampilkan pesan error yang lebih jelas jika file tidak ditemukan
             res.status(500).send(`
-                <div style="font-family: monospace; padding: 20px;">
-                    <h1>Server Error: Gagal Memuat Frontend</h1>
-                    <p><strong>Error Message:</strong> ${err.message}</p>
-                    <hr>
-                    <h3>Debug Info:</h3>
-                    <p><strong>Mencari file di:</strong> ${indexPath}</p>
-                    <p><strong>Folder Frontend terdeteksi di:</strong> ${frontendPath}</p>
-                    <p><strong>Current Directory (CWD):</strong> ${process.cwd()}</p>
-                    <p><strong>Dirname:</strong> ${__dirname}</p>
-                </div>
+                <h1>Server Error: Gagal Memuat Frontend</h1>
+                <p>Error: ${err.message}</p>
+                <p>Path yang dicari: ${indexPath}</p>
+                <p>Pastikan folder 'frontend' sejajar dengan folder 'backend'.</p>
             `);
         }
     });
 });
 
-// Start Server (Localhost Only)
 if (require.main === module) {
     app.listen(PORT, () => {
         console.log(`🚀 Server running on http://localhost:${PORT}`);
