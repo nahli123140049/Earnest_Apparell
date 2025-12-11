@@ -1,4 +1,4 @@
-const WA_PHONE = "6281234567890"; 
+const WA_PHONE = "6285179721744"; // REPLACE WITH EARNEST APPAREL WA NUMBER 
 
 // --- CONFIGURATION ---
 // Fix API_URL: Pastikan mengarah ke port 5000 jika di localhost
